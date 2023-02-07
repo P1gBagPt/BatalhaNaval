@@ -6,6 +6,7 @@ using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace BatalhaNaval
 {
@@ -73,6 +74,11 @@ namespace BatalhaNaval
                 modoJogo = int.Parse(Console.ReadLine());
             } while (modoJogo < 1 || modoJogo > 3);
 
+
+
+
+
+
             //Numero de posições na matriz (10*10|15*15|20*20)
             int celulas = 0;
             //Criar os tipos de barcos
@@ -136,7 +142,7 @@ namespace BatalhaNaval
             {
                 Console.Clear();
                 if (modoJogo == 1)
-                {                  
+                {
                     Console.Write("Modo - ");
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write("Fácil ");
@@ -206,203 +212,804 @@ namespace BatalhaNaval
             //Pontos de cada jogador
             int pontos1 = 0, pontos2 = 0;
 
-            //-----Posicionar BARCOS TABULEIRO 1-----
-            //-Porta - aviões(4 posições)
-            for (int i = 0; i < portaAvioes; i++)
+
+            int colocarBarcos1 = 0, colocarBarcos2 = 0;
+            do
             {
-                //Gerar uma linha e uma coluna
-                int row = rnd.Next(0, celulas - 4);
-                int col = rnd.Next(0, celulas - 1);
-                bool emptySpot = false;
+                Console.Clear();
+                Console.WriteLine("Jogador 1 deseja introduzir os barcos ou introduzir aleatoriamente?");
+                Console.WriteLine("1- Introduzir barcos");
+                Console.WriteLine("2- Aleatorio");
+                Console.Write("Opção: ");
+                colocarBarcos1 = int.Parse(Console.ReadLine());
+            } while (colocarBarcos1 < 1 || colocarBarcos1 > 2);
 
-                while (!emptySpot)
+            if (modoJogar == 1)
+            {
+                do
                 {
-                    emptySpot = true;
+                    Console.Clear();
+                    Console.WriteLine("Jogador 2 deseja introduzir os barcos ou introduzir aleatoriamente?");
+                    Console.WriteLine("1- Introduzir barcos");
+                    Console.WriteLine("2- Aleatorio");
+                    Console.Write("Opção: ");
+                    colocarBarcos2 = int.Parse(Console.ReadLine());
+                } while (colocarBarcos2 < 1 || colocarBarcos2 > 2);
+            }
 
-                    if (tabuleiroJogador1[row, col] != '\0' || tabuleiroJogador1[row + 1, col] != '\0' || tabuleiroJogador1[row + 2, col] != '\0' || tabuleiroJogador1[row + 3, col] != '\0')
+            if (colocarBarcos1 == 2)
+            {
+                //-----Posicionar BARCOS TABULEIRO 1-----
+                //-Porta - aviões(4 posições)
+                for (int i = 0; i < portaAvioes; i++)
+                {
+                    //Gerar uma linha e uma coluna
+                    int row = rnd.Next(0, celulas - 4);
+                    int col = rnd.Next(0, celulas - 1);
+                    bool emptySpot = false;
+
+                    while (!emptySpot)
                     {
-                        emptySpot = false;
-                        //Linha
-                        row = rnd.Next(0, celulas - 4);
-                        col = rnd.Next(0, celulas - 1);
+                        emptySpot = true;
+
+                        if (tabuleiroJogador1[row, col] != '\0' || tabuleiroJogador1[row + 1, col] != '\0' || tabuleiroJogador1[row + 2, col] != '\0' || tabuleiroJogador1[row + 3, col] != '\0')
+                        {
+                            emptySpot = false;
+                            //Linha
+                            row = rnd.Next(0, celulas - 4);
+                            col = rnd.Next(0, celulas - 1);
+                        }
+                    }
+
+                    tabuleiroJogador1[row, col] = 'P';
+                    tabuleiroJogador1[row + 1, col] = 'P';
+                    tabuleiroJogador1[row + 2, col] = 'P';
+                    tabuleiroJogador1[row + 3, col] = 'P';
+                }
+
+                //-Fragatas(3 posições)
+                for (int i = 0; i < fragatas; i++)
+                {
+                    int row = rnd.Next(0, celulas - 1);
+                    int col = rnd.Next(0, celulas - 3);
+
+                    bool emptySpot = false;
+                    while (!emptySpot)
+                    {
+                        emptySpot = true;
+
+                        if (tabuleiroJogador1[row, col] != '\0' || tabuleiroJogador1[row, col + 1] != '\0' || tabuleiroJogador1[row, col + 2] != '\0')
+                        {
+                            emptySpot = false;
+                            row = rnd.Next(0, celulas - 1);
+                            col = rnd.Next(0, celulas - 3);
+                        }
+                    }
+
+                    tabuleiroJogador1[row, col] = 'F';
+                    tabuleiroJogador1[row, col + 1] = 'F';
+                    tabuleiroJogador1[row, col + 2] = 'F';
+
+                }
+
+                //-Corvetas(2 posições)
+                for (int i = 0; i < corvetas; i++)
+                {
+                    int row = rnd.Next(0, celulas - 2);
+                    int col = rnd.Next(0, celulas - 1);
+
+                    bool emptySpot = false;
+                    while (!emptySpot)
+                    {
+                        emptySpot = true;
+
+                        if (tabuleiroJogador1[row, col] != '\0' || tabuleiroJogador1[row + 1, col] != '\0')
+                        {
+                            emptySpot = false;
+                            row = rnd.Next(0, celulas - 2);
+                            col = rnd.Next(0, celulas - 1);
+                        }
+                    }
+
+                    tabuleiroJogador1[row, col] = 'C';
+                    tabuleiroJogador1[row + 1, col] = 'C';
+                }
+
+                //-Submarino (1 posição)
+                for (int i = 0; i < submarinos; i++)
+                {
+                    int row = rnd.Next(0, celulas);
+                    int col = rnd.Next(0, celulas);
+                    bool emptySpot = false;
+
+                    while (!emptySpot)
+                    {
+                        emptySpot = true;
+
+                        if (tabuleiroJogador1[row, col] != '\0')
+                        {
+                            emptySpot = false;
+                            row = rnd.Next(0, celulas);
+                            col = rnd.Next(0, celulas);
+                        }
+                    }
+
+                    tabuleiroJogador1[row, col] = 'S';
+                }
+                //-----Posicionar BARCOS TABULEIRO 1-----
+            }
+            else if (colocarBarcos1 == 1)
+            {
+                int Linha = 0, Col = 0;
+                string letter;
+
+                for (int i = 0; i < portaAvioes; i++)
+                {
+                    Console.Clear();
+                    bool inputValid = false;
+                    while (!inputValid)
+                    {
+                        MostrarTabuleiro1(tabuleiroJogador1, celulas);
+
+                        Console.WriteLine("|Jogador 1 introduza porta aviões|");
+                        Console.WriteLine($"Linha do porta aviões: (1 e {celulas})");
+                        Linha = int.Parse(Console.ReadLine()) - 1;
+                        Console.WriteLine($"Coluna do porta aviões: (A e {(char)('A' + celulas - 1)})");
+                        letter = Console.ReadLine().ToUpper();
+                        if (string.IsNullOrEmpty(letter))
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.ResetColor();
+                            continue;
+                        }
+                        Col = (int)letter[0] - 65;
+
+                        if (Linha + 3 >= celulas)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.ReadKey();
+                            Console.ResetColor();
+                            Console.Clear();
+                            continue;
+                        }
+                        bool emptySpot = false;
+
+                        while (!emptySpot)
+                        {
+                            emptySpot = true;
+
+                            if (tabuleiroJogador1[Linha, Col] != '\0' || tabuleiroJogador1[Linha + 1, Col] != '\0' || tabuleiroJogador1[Linha + 2, Col] != '\0' || tabuleiroJogador1[Linha + 3, Col] != '\0')
+                            {
+                                emptySpot = false;
+                                Console.Clear();
+                                //Linha
+                                MostrarTabuleiro1(tabuleiroJogador1, celulas);
+
+                                Console.WriteLine("|Jogador 1 introduza porta aviões|");
+                                Console.WriteLine($"Linha do porta aviões: (1 e {celulas})");
+                                Linha = int.Parse(Console.ReadLine()) - 1;
+                                Console.WriteLine($"Coluna do porta aviões: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+                                Col = (int)letter[0] - 65;
+
+                            }
+                        }
+                        //Adiciona ao tabuleiro do jogador 1
+                        tabuleiroJogador1[Linha, Col] = 'P';
+                        tabuleiroJogador1[Linha + 1, Col] = 'P';
+                        tabuleiroJogador1[Linha + 2, Col] = 'P';
+                        tabuleiroJogador1[Linha + 3, Col] = 'P';
+                        inputValid = true;
+
                     }
                 }
 
-                tabuleiroJogador1[row, col] = 'P';
-                tabuleiroJogador1[row + 1, col] = 'P';
-                tabuleiroJogador1[row + 2, col] = 'P';
-                tabuleiroJogador1[row + 3, col] = 'P';
-            }
 
-            //-Fragatas(3 posições)
-            for (int i = 0; i < fragatas; i++)
-            {
-                int row = rnd.Next(0, celulas - 1);
-                int col = rnd.Next(0, celulas - 3);
 
-                bool emptySpot = false;
-                while (!emptySpot)
+                for (int i = 0; i < fragatas; i++)
                 {
-                    emptySpot = true;
-
-                    if (tabuleiroJogador1[row, col] != '\0' || tabuleiroJogador1[row, col + 1] != '\0' || tabuleiroJogador1[row, col + 2] != '\0')
+                    Console.Clear();
+                    bool inputValid = false;
+                    while (!inputValid)
                     {
-                        emptySpot = false;
-                        row = rnd.Next(0, celulas - 1);
-                        col = rnd.Next(0, celulas - 3);
+                        MostrarTabuleiro1(tabuleiroJogador1, celulas);
+
+                        Console.WriteLine("|Jogador 1 introduza fragatas|");
+                        Console.WriteLine($"Linha do fragatas: (1 e {celulas})");
+                        Linha = int.Parse(Console.ReadLine()) - 1;
+                        Console.WriteLine($"Coluna do fragatas: (A e {(char)('A' + celulas - 1)})");
+                        letter = Console.ReadLine().ToUpper();
+                        if (string.IsNullOrEmpty(letter))
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.ResetColor();
+                            continue;
+                        }
+                        Col = (int)letter[0] - 65;
+
+                        if (Linha + 2 >= celulas)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.ReadKey();
+                            Console.ResetColor();
+                            Console.Clear();
+                            continue;
+                        }
+                        bool emptySpot = false;
+
+                        while (!emptySpot)
+                        {
+                            emptySpot = true;
+
+                            if (tabuleiroJogador1[Linha, Col] != '\0' || tabuleiroJogador1[Linha + 1, Col] != '\0' || tabuleiroJogador1[Linha + 2, Col] != '\0')
+                            {
+                                emptySpot = false;
+                                Console.Clear();
+                                //Linha
+                                MostrarTabuleiro1(tabuleiroJogador1, celulas);
+
+                                Console.WriteLine("|Jogador 1 introduza fragatas|");
+                                Console.WriteLine($"Linha do fragatas: (1 e {celulas})");
+                                Linha = int.Parse(Console.ReadLine()) - 1;
+                                Console.WriteLine($"Coluna do fragatas: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+                                Col = (int)letter[0] - 65;
+
+                            }
+                        }
+                        //Adiciona ao tabuleiro do jogador 1
+                        tabuleiroJogador1[Linha, Col] = 'F';
+                        tabuleiroJogador1[Linha + 1, Col] = 'F';
+                        tabuleiroJogador1[Linha + 2, Col] = 'F';
+                        inputValid = true;
+
                     }
                 }
 
-                tabuleiroJogador1[row, col] = 'F';
-                tabuleiroJogador1[row , col + 1] = 'F';
-                tabuleiroJogador1[row, col + 2] = 'F';
-
-            }
-
-            //-Corvetas(2 posições)
-            for (int i = 0; i < corvetas; i++)
-            {
-                int row = rnd.Next(0, celulas - 2);
-                int col = rnd.Next(0, celulas - 1);
-
-                bool emptySpot = false;
-                while (!emptySpot)
+                for (int i = 0; i < corvetas; i++)
                 {
-                    emptySpot = true;
-
-                    if (tabuleiroJogador1[row, col] != '\0' || tabuleiroJogador1[row + 1, col] != '\0')
+                    Console.Clear();
+                    bool inputValid = false;
+                    while (!inputValid)
                     {
-                        emptySpot = false;
-                        row = rnd.Next(0, celulas - 2);
-                        col = rnd.Next(0, celulas - 1);
+                        MostrarTabuleiro1(tabuleiroJogador1, celulas);
+
+                        Console.WriteLine("|Jogador 1 introduza corvetas|");
+                        Console.WriteLine($"Linha do corvetas: (1 e {celulas})");
+                        Linha = int.Parse(Console.ReadLine()) - 1;
+                        Console.WriteLine($"Coluna do corvetas: (A e {(char)('A' + celulas - 1)})");
+                        letter = Console.ReadLine().ToUpper();
+                        if (string.IsNullOrEmpty(letter))
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.ResetColor();
+                            continue;
+                        }
+                        Col = (int)letter[0] - 65;
+
+                        if (Linha + 1 >= celulas)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.ReadKey();
+                            Console.ResetColor();
+                            Console.Clear();
+                            continue;
+                        }
+                        bool emptySpot = false;
+
+                        while (!emptySpot)
+                        {
+                            emptySpot = true;
+
+                            if (tabuleiroJogador1[Linha, Col] != '\0' || tabuleiroJogador1[Linha + 1, Col] != '\0')
+                            {
+                                emptySpot = false;
+                                Console.Clear();
+                                //Linha
+                                MostrarTabuleiro1(tabuleiroJogador1, celulas);
+
+                                Console.WriteLine("|Jogador 1 introduza corvetas|");
+                                Console.WriteLine($"Linha do corvetas: (1 e {celulas})");
+                                Linha = int.Parse(Console.ReadLine()) - 1;
+                                Console.WriteLine($"Coluna do corvetas: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+                                Col = (int)letter[0] - 65;
+
+                            }
+                        }
+                        //Adiciona ao tabuleiro do jogador 1
+                        tabuleiroJogador1[Linha, Col] = 'C';
+                        tabuleiroJogador1[Linha + 1, Col] = 'C';
+                        inputValid = true;
+
                     }
                 }
 
-                tabuleiroJogador1[row, col] = 'C';
-                tabuleiroJogador1[row + 1, col] = 'C';
-            }
-
-            //-Submarino (1 posição)
-            for (int i = 0; i < submarinos; i++)
-            {
-                int row = rnd.Next(0, celulas);
-                int col = rnd.Next(0, celulas);
-                bool emptySpot = false;
-
-                while (!emptySpot)
+                for (int i = 0; i < submarinos; i++)
                 {
-                    emptySpot = true;
-
-                    if (tabuleiroJogador1[row, col] != '\0')
+                    Console.Clear();
+                    bool inputValid = false;
+                    while (!inputValid)
                     {
-                        emptySpot = false;
-                        row = rnd.Next(0, celulas);
-                        col = rnd.Next(0, celulas);
+                        MostrarTabuleiro1(tabuleiroJogador1, celulas);
+
+                        Console.WriteLine("|Jogador 1 introduza submarinos|");
+                        Console.WriteLine($"Linha do submarinos: (1 e {celulas})");
+                        Linha = int.Parse(Console.ReadLine()) - 1;
+                        Console.WriteLine($"Coluna do submarinos: (A e {(char)('A' + celulas - 1)})");
+                        letter = Console.ReadLine().ToUpper();
+                        if (string.IsNullOrEmpty(letter))
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.ResetColor();
+                            continue;
+                        }
+                        Col = (int)letter[0] - 65;
+
+                        if (Linha >= celulas)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.ReadKey();
+                            Console.ResetColor();
+                            Console.Clear();
+                            continue;
+                        }
+                        bool emptySpot = false;
+
+                        while (!emptySpot)
+                        {
+                            emptySpot = true;
+
+                            if (tabuleiroJogador1[Linha, Col] != '\0')
+                            {
+                                emptySpot = false;
+                                Console.Clear();
+                                //Linha
+                                MostrarTabuleiro1(tabuleiroJogador1, celulas);
+
+                                Console.WriteLine("|Jogador 1 introduza submarinos|");
+                                Console.WriteLine($"Linha do submarinos: (1 e {celulas})");
+                                Linha = int.Parse(Console.ReadLine()) - 1;
+                                Console.WriteLine($"Coluna do submarinos: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+                                Col = (int)letter[0] - 65;
+
+                            }
+                        }
+                        //Adiciona ao tabuleiro do jogador 1
+                        tabuleiroJogador1[Linha, Col] = 'S';
+                        inputValid = true;
+
                     }
                 }
 
-                tabuleiroJogador1[row, col] = 'S';
+
             }
-            //-----Posicionar BARCOS TABULEIRO 1-----
 
-
-            //-----Posicionar BARCOS TABULEIRO 2-----
-            //-Porta - aviões(4 posições)
-            for (int i = 0; i < portaAvioes; i++)
+            if (colocarBarcos2 == 2)
             {
-                int row = rnd.Next(0, celulas - 4);
-                int col = rnd.Next(0, celulas - 1);
-                bool emptySpot = false;
-
-                while (!emptySpot)
+                //-----Posicionar BARCOS TABULEIRO 2-----
+                //-Porta - aviões(4 posições)
+                for (int i = 0; i < portaAvioes; i++)
                 {
-                    emptySpot = true;
+                    int row = rnd.Next(0, celulas - 4);
+                    int col = rnd.Next(0, celulas - 1);
+                    bool emptySpot = false;
 
-                    if (tabuleiroJogador2[row, col] != '\0' || tabuleiroJogador2[row + 1, col] != '\0' || tabuleiroJogador2[row + 2, col] != '\0' || tabuleiroJogador2[row + 3, col] != '\0')
+                    while (!emptySpot)
                     {
-                        emptySpot = false;
-                        row = rnd.Next(0, celulas - 4);
-                        col = rnd.Next(0, celulas - 1);
+                        emptySpot = true;
+
+                        if (tabuleiroJogador2[row, col] != '\0' || tabuleiroJogador2[row + 1, col] != '\0' || tabuleiroJogador2[row + 2, col] != '\0' || tabuleiroJogador2[row + 3, col] != '\0')
+                        {
+                            emptySpot = false;
+                            row = rnd.Next(0, celulas - 4);
+                            col = rnd.Next(0, celulas - 1);
+                        }
+                    }
+
+                    tabuleiroJogador2[row, col] = 'P';
+                    tabuleiroJogador2[row + 1, col] = 'P';
+                    tabuleiroJogador2[row + 2, col] = 'P';
+                    tabuleiroJogador2[row + 3, col] = 'P';
+                }
+
+                //-Fragatas(3 posições)
+                for (int i = 0; i < fragatas; i++)
+                {
+                    int row = rnd.Next(0, celulas - 1);
+                    int col = rnd.Next(0, celulas - 3);
+
+                    bool emptySpot = false;
+                    while (!emptySpot)
+                    {
+                        emptySpot = true;
+
+                        if (tabuleiroJogador2[row, col] != '\0' || tabuleiroJogador2[row, col + 1] != '\0' || tabuleiroJogador2[row, col + 2] != '\0')
+                        {
+                            emptySpot = false;
+                            row = rnd.Next(0, celulas - 1);
+                            col = rnd.Next(0, celulas - 3);
+                        }
+                    }
+
+                    tabuleiroJogador2[row, col] = 'F';
+                    tabuleiroJogador2[row, col + 1] = 'F';
+                    tabuleiroJogador2[row, col + 2] = 'F';
+
+                }
+
+                //-Corvetas(2 posições)
+                for (int i = 0; i < corvetas; i++)
+                {
+                    int row = rnd.Next(0, celulas - 2);
+                    int col = rnd.Next(0, celulas - 1);
+
+                    bool emptySpot = false;
+                    while (!emptySpot)
+                    {
+                        emptySpot = true;
+
+                        if (tabuleiroJogador2[row, col] != '\0' || tabuleiroJogador2[row + 1, col] != '\0')
+                        {
+                            emptySpot = false;
+                            row = rnd.Next(0, celulas - 2);
+                            col = rnd.Next(0, celulas - 1);
+                        }
+                    }
+
+                    tabuleiroJogador2[row, col] = 'C';
+                    tabuleiroJogador2[row + 1, col] = 'C';
+                }
+
+                //-Submarino (1 posição)
+                for (int i = 0; i < submarinos; i++)
+                {
+                    int row = rnd.Next(0, celulas);
+                    int col = rnd.Next(0, celulas);
+                    bool emptySpot = false;
+
+                    while (!emptySpot)
+                    {
+                        emptySpot = true;
+
+                        if (tabuleiroJogador2[row, col] != '\0')
+                        {
+                            emptySpot = false;
+                            row = rnd.Next(0, celulas);
+                            col = rnd.Next(0, celulas);
+                        }
+                    }
+
+                    tabuleiroJogador2[row, col] = 'S';
+                }
+                //-----Posicionar BARCOS TABULEIRO 2-----
+            }
+            else if (colocarBarcos2 == 1)
+            {
+                int Linha = 0, Col = 0;
+                string letter;
+
+                for (int i = 0; i < portaAvioes; i++)
+                {
+                    Console.Clear();
+                    bool inputValid = false;
+                    while (!inputValid)
+                    {
+                        MostrarTabuleiro2(tabuleiroJogador2, celulas);
+
+                        Console.WriteLine("|Jogador 2 introduza porta aviões|");
+                        Console.WriteLine($"Linha do porta aviões: (1 e {celulas})");
+                        Linha = int.Parse(Console.ReadLine()) - 1;
+                        Console.WriteLine($"Coluna do porta aviões: (A e {(char)('A' + celulas - 1)})");
+                        letter = Console.ReadLine().ToUpper();
+                        if (string.IsNullOrEmpty(letter))
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.ResetColor();
+                            continue;
+                        }
+                        Col = (int)letter[0] - 65;
+
+                        if (Linha + 3 >= celulas)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.ReadKey();
+                            Console.ResetColor();
+                            Console.Clear();
+                            continue;
+                        }
+                        bool emptySpot = false;
+
+                        while (!emptySpot)
+                        {
+                            emptySpot = true;
+
+                            if (tabuleiroJogador2[Linha, Col] != '\0' || tabuleiroJogador2[Linha + 1, Col] != '\0' || tabuleiroJogador2[Linha + 2, Col] != '\0' || tabuleiroJogador2[Linha + 3, Col] != '\0')
+                            {
+                                emptySpot = false;
+                                Console.Clear();
+                                //Linha
+                                MostrarTabuleiro2(tabuleiroJogador2, celulas);
+
+                                Console.WriteLine("|Jogador 2 introduza porta aviões|");
+                                Console.WriteLine($"Linha do porta aviões: (1 e {celulas})");
+                                Linha = int.Parse(Console.ReadLine()) - 1;
+                                Console.WriteLine($"Coluna do porta aviões: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+                                Col = (int)letter[0] - 65;
+
+                            }
+                        }
+                        //Adiciona ao tabuleiro do jogador 1
+                        tabuleiroJogador2[Linha, Col] = 'P';
+                        tabuleiroJogador2[Linha + 1, Col] = 'P';
+                        tabuleiroJogador2[Linha + 2, Col] = 'P';
+                        tabuleiroJogador2[Linha + 3, Col] = 'P';
+                        inputValid = true;
+
                     }
                 }
 
-                tabuleiroJogador2[row, col] = 'P';
-                tabuleiroJogador2[row + 1, col] = 'P';
-                tabuleiroJogador2[row + 2, col] = 'P';
-                tabuleiroJogador2[row + 3, col] = 'P';
-            }
 
-            //-Fragatas(3 posições)
-            for (int i = 0; i < fragatas; i++)
-            {
-                int row = rnd.Next(0, celulas - 1);
-                int col = rnd.Next(0, celulas - 3);
 
-                bool emptySpot = false;
-                while (!emptySpot)
+                for (int i = 0; i < fragatas; i++)
                 {
-                    emptySpot = true;
-
-                    if (tabuleiroJogador2[row, col] != '\0' || tabuleiroJogador2[row, col + 1] != '\0' || tabuleiroJogador2[row, col + 2] != '\0')
+                    Console.Clear();
+                    bool inputValid = false;
+                    while (!inputValid)
                     {
-                        emptySpot = false;
-                        row = rnd.Next(0, celulas - 1);
-                        col = rnd.Next(0, celulas - 3);
+                        MostrarTabuleiro2(tabuleiroJogador2, celulas);
+
+                        Console.WriteLine("|Jogador 2 introduza fragatas|");
+                        Console.WriteLine($"Linha do fragatas: (1 e {celulas})");
+                        Linha = int.Parse(Console.ReadLine()) - 1;
+                        Console.WriteLine($"Coluna do fragatas: (A e {(char)('A' + celulas - 1)})");
+                        letter = Console.ReadLine().ToUpper();
+                        if (string.IsNullOrEmpty(letter))
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.ResetColor();
+                            continue;
+                        }
+                        Col = (int)letter[0] - 65;
+
+                        if (Linha + 2 >= celulas)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.ReadKey();
+                            Console.ResetColor();
+                            Console.Clear();
+                            continue;
+                        }
+                        bool emptySpot = false;
+
+                        while (!emptySpot)
+                        {
+                            emptySpot = true;
+
+                            if (tabuleiroJogador2[Linha, Col] != '\0' || tabuleiroJogador2[Linha + 1, Col] != '\0' || tabuleiroJogador2[Linha + 2, Col] != '\0')
+                            {
+                                emptySpot = false;
+                                Console.Clear();
+                                //Linha
+                                MostrarTabuleiro2(tabuleiroJogador2, celulas);
+
+                                Console.WriteLine("|Jogador 1 introduza fragatas|");
+                                Console.WriteLine($"Linha do fragatas: (1 e {celulas})");
+                                Linha = int.Parse(Console.ReadLine()) - 1;
+                                Console.WriteLine($"Coluna do fragatas: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+                                Col = (int)letter[0] - 65;
+
+                            }
+                        }
+                        //Adiciona ao tabuleiro do jogador 1
+                        tabuleiroJogador2[Linha, Col] = 'F';
+                        tabuleiroJogador2[Linha + 1, Col] = 'F';
+                        tabuleiroJogador2[Linha + 2, Col] = 'F';
+                        inputValid = true;
+
                     }
                 }
 
-                tabuleiroJogador2[row, col] = 'F';
-                tabuleiroJogador2[row, col + 1] = 'F';
-                tabuleiroJogador2[row, col + 2] = 'F';
-
-            }
-
-            //-Corvetas(2 posições)
-            for (int i = 0; i < corvetas; i++)
-            {
-                int row = rnd.Next(0, celulas - 2);
-                int col = rnd.Next(0, celulas - 1);
-
-                bool emptySpot = false;
-                while (!emptySpot)
+                for (int i = 0; i < corvetas; i++)
                 {
-                    emptySpot = true;
-
-                    if (tabuleiroJogador2[row, col] != '\0' || tabuleiroJogador2[row + 1, col] != '\0')
+                    Console.Clear();
+                    bool inputValid = false;
+                    while (!inputValid)
                     {
-                        emptySpot = false;
-                        row = rnd.Next(0, celulas - 2);
-                        col = rnd.Next(0, celulas - 1);
+                        MostrarTabuleiro2(tabuleiroJogador2, celulas);
+
+                        Console.WriteLine("|Jogador 2 introduza corvetas|");
+                        Console.WriteLine($"Linha do corvetas: (1 e {celulas})");
+                        Linha = int.Parse(Console.ReadLine()) - 1;
+                        Console.WriteLine($"Coluna do corvetas: (A e {(char)('A' + celulas - 1)})");
+                        letter = Console.ReadLine().ToUpper();
+                        if (string.IsNullOrEmpty(letter))
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.ResetColor();
+                            continue;
+                        }
+                        Col = (int)letter[0] - 65;
+
+                        if (Linha + 1 >= celulas)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.ReadKey();
+                            Console.ResetColor();
+                            Console.Clear();
+                            continue;
+                        }
+                        bool emptySpot = false;
+
+                        while (!emptySpot)
+                        {
+                            emptySpot = true;
+
+                            if (tabuleiroJogador2[Linha, Col] != '\0' || tabuleiroJogador2[Linha + 1, Col] != '\0')
+                            {
+                                emptySpot = false;
+                                Console.Clear();
+                                //Linha
+                                MostrarTabuleiro2(tabuleiroJogador2, celulas);
+
+                                Console.WriteLine("|Jogador 2 introduza corvetas|");
+                                Console.WriteLine($"Linha do corvetas: (1 e {celulas})");
+                                Linha = int.Parse(Console.ReadLine()) - 1;
+                                Console.WriteLine($"Coluna do corvetas: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+                                Col = (int)letter[0] - 65;
+
+                            }
+                        }
+                        //Adiciona ao tabuleiro do jogador 2
+                        tabuleiroJogador2[Linha, Col] = 'C';
+                        tabuleiroJogador2[Linha + 1, Col] = 'C';
+                        inputValid = true;
+
                     }
                 }
 
-                tabuleiroJogador2[row, col] = 'C';
-                tabuleiroJogador2[row + 1, col] = 'C';
-            }
-
-            //-Submarino (1 posição)
-            for (int i = 0; i < submarinos; i++)
-            {
-                int row = rnd.Next(0, celulas);
-                int col = rnd.Next(0, celulas);
-                bool emptySpot = false;
-
-                while (!emptySpot)
+                for (int i = 0; i < submarinos; i++)
                 {
-                    emptySpot = true;
-
-                    if (tabuleiroJogador2[row, col] != '\0')
+                    Console.Clear();
+                    bool inputValid = false;
+                    while (!inputValid)
                     {
-                        emptySpot = false;
-                        row = rnd.Next(0, celulas);
-                        col = rnd.Next(0, celulas);
+                        MostrarTabuleiro2(tabuleiroJogador2, celulas);
+
+                        Console.WriteLine("|Jogador 1 introduza submarinos|");
+                        Console.WriteLine($"Linha do submarinos: (1 e {celulas})");
+                        Linha = int.Parse(Console.ReadLine()) - 1;
+                        Console.WriteLine($"Coluna do submarinos: (A e {(char)('A' + celulas - 1)})");
+                        letter = Console.ReadLine().ToUpper();
+                        if (string.IsNullOrEmpty(letter))
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.ResetColor();
+                            continue;
+                        }
+                        Col = (int)letter[0] - 65;
+
+                        if (Linha >= celulas)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.ReadKey();
+                            Console.ResetColor();
+                            Console.Clear();
+                            continue;
+                        }
+                        bool emptySpot = false;
+
+                        while (!emptySpot)
+                        {
+                            emptySpot = true;
+
+                            if (tabuleiroJogador2[Linha, Col] != '\0')
+                            {
+                                emptySpot = false;
+                                Console.Clear();
+                                //Linha
+                                MostrarTabuleiro2(tabuleiroJogador2, celulas);
+
+                                Console.WriteLine("|Jogador 2 introduza submarinos|");
+                                Console.WriteLine($"Linha do submarinos: (1 e {celulas})");
+                                Linha = int.Parse(Console.ReadLine()) - 1;
+                                Console.WriteLine($"Coluna do submarinos: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+                                Col = (int)letter[0] - 65;
+
+                            }
+                        }
+                        //Adiciona ao tabuleiro do jogador 1
+                        tabuleiroJogador2[Linha, Col] = 'S';
+                        inputValid = true;
+
                     }
                 }
-
-                tabuleiroJogador2[row, col] = 'S';
             }
-            //-----Posicionar BARCOS TABULEIRO 2-----
-
             //Total de barcos dos jogadores , HIT = playerShips --;           
             //Verificar Jogadas anteriores
             char[,] tabuJogadas1 = new char[celulas, celulas];
@@ -417,7 +1024,8 @@ namespace BatalhaNaval
                 {
                     //Facil
                     Console.WriteLine("   Tabuleiro Jogador 1   Tabuleiro de Jogadas");
-                } else if (modoJogo == 2)
+                }
+                else if (modoJogo == 2)
                 {
                     Console.WriteLine("        Tabuleiro Jogador 1              Tabuleiro de Jogadas");
                 }
@@ -464,12 +1072,15 @@ namespace BatalhaNaval
                             Console.Write(tabuleiroJogador1[i, j] + " ");
                             Console.ResetColor();
                             //COR DO SUBMARINO
-                        }else if (tabuleiroJogador1[i, j] == 'S'){
+                        }
+                        else if (tabuleiroJogador1[i, j] == 'S')
+                        {
                             Console.ForegroundColor = ConsoleColor.Blue;
                             Console.Write(tabuleiroJogador1[i, j] + " ");
                             Console.ResetColor();
                             //COR DA CARAVELA
-                        }else if (tabuleiroJogador1[i, j] == 'C')
+                        }
+                        else if (tabuleiroJogador1[i, j] == 'C')
                         {
                             Console.ForegroundColor = ConsoleColor.Cyan;
                             Console.Write(tabuleiroJogador1[i, j] + " ");
@@ -482,7 +1093,8 @@ namespace BatalhaNaval
                             Console.Write(tabuleiroJogador1[i, j] + " ");
                             Console.ResetColor();
                             //COR DO PORTA AVIÕES
-                        }else if (tabuleiroJogador1[i, j] == 'P')
+                        }
+                        else if (tabuleiroJogador1[i, j] == 'P')
                         {
                             Console.ForegroundColor = ConsoleColor.Magenta;
                             Console.Write(tabuleiroJogador1[i, j] + " ");
@@ -1022,7 +1634,8 @@ namespace BatalhaNaval
             Console.ReadKey();
         }
 
-        static void mostrarModosTabuleiros(){
+        static void mostrarModosTabuleiros()
+        {
             Console.Clear();
             Console.WriteLine("  +---------------------------------+");
             Console.WriteLine("  |        Tabuleiro de Jogo        |");
@@ -1044,13 +1657,142 @@ namespace BatalhaNaval
             Console.WriteLine("  +----------------------------+\n");
             Console.Write("Opção: ");
         }
-      
+
+        private static void MostrarTabuleiro1(char[,] tabuleiro1, int celulas)
+        {
+            Console.Write("  ");
+            for (char i = 'A'; i < 'A' + celulas; i++)
+            {
+                Console.Write(i.ToString().PadLeft(2));
+            }
+            Console.WriteLine();
+            for (int b = 0; b < celulas; b++)
+            {
+                //Mostraros indicadores de colunas com os numeros
+                Console.Write((b + 1).ToString().PadLeft(2) + " ");
+                for (int j = 0; j < celulas; j++)
+                {
+                    //Espaço vazio(água) é um (-)
+                    if (tabuleiro1[b, j] == '\0')
+                        Console.Write("- ");
+                    //Se já tiver acertado e for H mostra H  em verde
+                    else if (tabuleiro1[b, j] == 'H')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.Write(tabuleiro1[b, j] + " ");
+                        Console.ResetColor();
+                    }
+                    //Se já tiver acertado e for H mostra A  em vermelho
+                    else if (tabuleiro1[b, j] == 'A')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write(tabuleiro1[b, j] + " ");
+                        Console.ResetColor();
+                        //COR DO SUBMARINO
+                    }
+                    else if (tabuleiro1[b, j] == 'S')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        Console.Write(tabuleiro1[b, j] + " ");
+                        Console.ResetColor();
+                        //COR DA CARAVELA
+                    }
+                    else if (tabuleiro1[b, j] == 'C')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write(tabuleiro1[b, j] + " ");
+                        Console.ResetColor();
+                        //COR DA FRAGATA
+                    }
+                    else if (tabuleiro1[b, j] == 'F')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.Write(tabuleiro1[b, j] + " ");
+                        Console.ResetColor();
+                        //COR DO PORTA AVIÕES
+                    }
+                    else if (tabuleiro1[b, j] == 'P')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.Write(tabuleiro1[b, j] + " ");
+                        Console.ResetColor();
+                    }
+                }
+                Console.WriteLine();
+            }
+        }
+
+
+        private static void MostrarTabuleiro2(char[,] tabuleiro2, int celulas)
+        {
+            Console.Write("  ");
+            for (char i = 'A'; i < 'A' + celulas; i++)
+            {
+                Console.Write(i.ToString().PadLeft(2));
+            }
+            Console.WriteLine();
+            for (int b = 0; b < celulas; b++)
+            {
+                //Mostraros indicadores de colunas com os numeros
+                Console.Write((b + 1).ToString().PadLeft(2) + " ");
+                for (int j = 0; j < celulas; j++)
+                {
+                    //Espaço vazio(água) é um (-)
+                    if (tabuleiro2[b, j] == '\0')
+                        Console.Write("- ");
+                    //Se já tiver acertado e for H mostra H  em verde
+                    else if (tabuleiro2[b, j] == 'H')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.Write(tabuleiro2[b, j] + " ");
+                        Console.ResetColor();
+                    }
+                    //Se já tiver acertado e for H mostra A  em vermelho
+                    else if (tabuleiro2[b, j] == 'A')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write(tabuleiro2[b, j] + " ");
+                        Console.ResetColor();
+                        //COR DO SUBMARINO
+                    }
+                    else if (tabuleiro2[b, j] == 'S')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        Console.Write(tabuleiro2[b, j] + " ");
+                        Console.ResetColor();
+                        //COR DA CARAVELA
+                    }
+                    else if (tabuleiro2[b, j] == 'C')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write(tabuleiro2[b, j] + " ");
+                        Console.ResetColor();
+                        //COR DA FRAGATA
+                    }
+                    else if (tabuleiro2[b, j] == 'F')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.Write(tabuleiro2[b, j] + " ");
+                        Console.ResetColor();
+                        //COR DO PORTA AVIÕES
+                    }
+                    else if (tabuleiro2[b, j] == 'P')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.Write(tabuleiro2[b, j] + " ");
+                        Console.ResetColor();
+                    }
+                }
+                Console.WriteLine();
+            }
+        }
+
         static void mostrarCopy()
-        {            
+        {
             Console.Write("Feito por ");
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.Write("Daniel Cunha\n\n");
-            Console.ResetColor();           
+            Console.ResetColor();
         }
     }
     class Score
