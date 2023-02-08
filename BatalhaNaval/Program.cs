@@ -118,7 +118,7 @@ namespace BatalhaNaval
                     //Fragatas = 0
                     corvetas = 4;
                     submarinos = 4;
-                    barcosJogador1 = 1;
+                    barcosJogador1 = 12;
                     barcosJogador2 = 12;
                     dificuldade = "Fácil";
                     //12
@@ -147,7 +147,7 @@ namespace BatalhaNaval
                     fragatas = 2;
                     corvetas = 2;
                     submarinos = 1;
-                    barcosJogador1 = 1;
+                    barcosJogador1 = 23;
                     barcosJogador2 = 23;
                     dificuldade = "Difícil";
                     //23
@@ -256,10 +256,11 @@ namespace BatalhaNaval
                 } while (colocarBarcos2 < 1 || colocarBarcos2 > 2);
             }
 
+
             if (colocarBarcos1 == 2)
             {
                 //-----Posicionar BARCOS TABULEIRO 1-----
-                //-Porta - aviões(4 posições)
+
                 for (int i = 0; i < portaAvioes; i++)
                 {
                     //Gerar uma linha e uma coluna
@@ -355,6 +356,8 @@ namespace BatalhaNaval
 
                     tabuleiroJogador1[row, col] = 'S';
                 }
+
+
                 //-----Posicionar BARCOS TABULEIRO 1-----
             }
             else if (colocarBarcos1 == 1)
@@ -867,6 +870,12 @@ namespace BatalhaNaval
 
             }
 
+
+
+            if (modoJogar == 2)
+            {
+                PreencherRandom(tabuleiroJogador2, celulas, portaAvioes, fragatas, corvetas, submarinos);
+            }
             if (colocarBarcos2 == 2)
             {
                 //-----Posicionar BARCOS TABULEIRO 2-----
@@ -2244,6 +2253,105 @@ namespace BatalhaNaval
                     }
                 }
                 Console.WriteLine();
+            }
+        }
+
+        private static void PreencherRandom(char[,] tabuleiroJogador2, int celulas, int portaAvioes, int fragatas, int corvetas, int submarinos) {
+            Random rnd = new Random();
+            for (int i = 0; i < portaAvioes; i++)
+            {
+                //Gerar uma linha e uma coluna
+                int row = rnd.Next(0, celulas - 4);
+                int col = rnd.Next(0, celulas - 1);
+                bool emptySpot = false;
+
+                while (!emptySpot)
+                {
+                    emptySpot = true;
+
+                    if (tabuleiroJogador2[row, col] != '\0' || tabuleiroJogador2[row + 1, col] != '\0' || tabuleiroJogador2[row + 2, col] != '\0' || tabuleiroJogador2[row + 3, col] != '\0')
+                    {
+                        emptySpot = false;
+                        //Linha
+                        row = rnd.Next(0, celulas - 4);
+                        col = rnd.Next(0, celulas - 1);
+                    }
+                }
+
+                tabuleiroJogador2[row, col] = 'P';
+                tabuleiroJogador2[row + 1, col] = 'P';
+                tabuleiroJogador2[row + 2, col] = 'P';
+                tabuleiroJogador2[row + 3, col] = 'P';
+            }
+
+            //-Fragatas(3 posições)
+            for (int i = 0; i < fragatas; i++)
+            {
+                int row = rnd.Next(0, celulas - 1);
+                int col = rnd.Next(0, celulas - 3);
+
+                bool emptySpot = false;
+                while (!emptySpot)
+                {
+                    emptySpot = true;
+
+                    if (tabuleiroJogador2[row, col] != '\0' || tabuleiroJogador2[row, col + 1] != '\0' || tabuleiroJogador2[row, col + 2] != '\0')
+                    {
+                        emptySpot = false;
+                        row = rnd.Next(0, celulas - 1);
+                        col = rnd.Next(0, celulas - 3);
+                    }
+                }
+
+                tabuleiroJogador2[row, col] = 'F';
+                tabuleiroJogador2[row, col + 1] = 'F';
+                tabuleiroJogador2[row, col + 2] = 'F';
+
+            }
+
+            //-Corvetas(2 posições)
+            for (int i = 0; i < corvetas; i++)
+            {
+                int row = rnd.Next(0, celulas - 2);
+                int col = rnd.Next(0, celulas - 1);
+
+                bool emptySpot = false;
+                while (!emptySpot)
+                {
+                    emptySpot = true;
+
+                    if (tabuleiroJogador2[row, col] != '\0' || tabuleiroJogador2[row + 1, col] != '\0')
+                    {
+                        emptySpot = false;
+                        row = rnd.Next(0, celulas - 2);
+                        col = rnd.Next(0, celulas - 1);
+                    }
+                }
+
+                tabuleiroJogador2[row, col] = 'C';
+                tabuleiroJogador2[row + 1, col] = 'C';
+            }
+
+            //-Submarino (1 posição)
+            for (int i = 0; i < submarinos; i++)
+            {
+                int row = rnd.Next(0, celulas);
+                int col = rnd.Next(0, celulas);
+                bool emptySpot = false;
+
+                while (!emptySpot)
+                {
+                    emptySpot = true;
+
+                    if (tabuleiroJogador2[row, col] != '\0')
+                    {
+                        emptySpot = false;
+                        row = rnd.Next(0, celulas);
+                        col = rnd.Next(0, celulas);
+                    }
+                }
+
+                tabuleiroJogador2[row, col] = 'S';
             }
         }
 
