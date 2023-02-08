@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
 
 namespace BatalhaNaval
 {
@@ -14,7 +11,8 @@ namespace BatalhaNaval
     {
         static void Main(string[] args)
         {
-            /* 
+            /*
+             (20)
              -------------------------------
              -----Tabuleiro do jogo de dimensão de 10 * 10
              -----Barcos a ocupar apenas uma posição (apenas de 1 dimensão)
@@ -23,7 +21,7 @@ namespace BatalhaNaval
              -----Verificação se acertou no barco ou se foi “água”
              -----Verificação se alguém ganhou o jogo
              -----Apenas  permitir  os  jogadores  jogarem  dentro  do  tabuleiro  e  numa  posição  que  ainda não tenha sido jogada
-             Gravação  e  apresentação  dos highscoresgravados  num  ficheiro ?????????????
+             -----Gravação  e  apresentação  dos highscoresgravados  num  ficheiro
              (a  ordenação  dos resultados é efetuado pelo números mínimo de jogadas para vencer)
             ----------------------------------
             Modo de jogo(2 valores):
@@ -31,10 +29,10 @@ namespace BatalhaNaval
             -----Médio (tabuleiro 15 * 15)
             -----Difícil (tabuleiro 20 * 20)
             ----------------------------------
-            Barcos de várias dimensões ?????????????
+            Barcos de várias dimensões
             (4valores)
-            -----Submarino (1 posição) -+20 | -1
-            -----Corvetas (2 posições) -+30 | 0.5 * 2  (1 barco) | 15 cada posição
+            -----Submarino (1 posição) -+20 | 15 cada posição
+            -----Corvetas (2 posições) -+30 | (1 barco) | 15 cada posição
             -----Fragatas(3 posições) -+45 | 15 cada posição
             -----Porta-aviões (4 posições) -+80 | 0.25 * 4  (1 barco)  20 cada posição
             ----------------------------------
@@ -47,19 +45,29 @@ namespace BatalhaNaval
             -----Gravação dos highscoresgravados, como é, se os barcos tem pontos ou nao.
             -----Porta avioes tem 4 posições ou seja 1 barco, se acertar na posição 2 do barco conta como -1barco ou não?
             -----Verificação de quem ganhou é por pontos ou por total de barcos?
-
-            -
+            
              */
 
             //Selecionar o Modo de Jogo FACIL/MEDIO/DIFICIL
 
             //Menu para as instruções do jogo
-            int instrucoes;
+            int instrucoes = 0;
+            bool parseSuccess = false;
             do
             {
                 mostrarMenuInstrucoes();
-                instrucoes = int.Parse(Console.ReadLine());
-            } while (instrucoes < 1 || instrucoes > 2);
+                try
+                {
+                    instrucoes = int.Parse(Console.ReadLine());
+                    parseSuccess = true;
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Por favor, insira um número válido.");
+                    parseSuccess = false;
+                }
+            } while (instrucoes < 1 || instrucoes > 2 || !parseSuccess);
+
             if (instrucoes == 1)
             {
                 //Função para mostrar as instruções
@@ -67,17 +75,27 @@ namespace BatalhaNaval
             }
 
             //Selecionar o modo de Jogo (Fácil|Médio|Difícil)
-            int modoJogo;
-            do
+            int modoJogo = 0;
+            bool inputValido = false;
+            while (!inputValido)
             {
-                mostrarModosTabuleiros();
-                modoJogo = int.Parse(Console.ReadLine());
-            } while (modoJogo < 1 || modoJogo > 3);
-
-
-
-
-
+                try
+                {
+                    mostrarModosTabuleiros();
+                    modoJogo = int.Parse(Console.ReadLine());
+                    if (modoJogo < 1 || modoJogo > 3)
+                    {
+                        throw new Exception("Insira um numero entre 1 e 3.");
+                    }
+                    inputValido = true;
+                }
+                catch (Exception ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine(ex.Message);
+                    Console.ResetColor();
+                }
+            }
 
             //Numero de posições na matriz (10*10|15*15|20*20)
             int celulas = 0;
@@ -100,7 +118,7 @@ namespace BatalhaNaval
                     //Fragatas = 0
                     corvetas = 4;
                     submarinos = 4;
-                    barcosJogador1 = 12;
+                    barcosJogador1 = 1;
                     barcosJogador2 = 12;
                     dificuldade = "Fácil";
                     //12
@@ -129,7 +147,7 @@ namespace BatalhaNaval
                     fragatas = 2;
                     corvetas = 2;
                     submarinos = 1;
-                    barcosJogador1 = 23;
+                    barcosJogador1 = 1;
                     barcosJogador2 = 23;
                     dificuldade = "Difícil";
                     //23
@@ -179,6 +197,7 @@ namespace BatalhaNaval
 
             if (modoJogar == 1)
             {
+                Console.Clear();
                 Console.WriteLine("Nome do Jogador 2: ");
                 nomeJogador2 = Console.ReadLine();
             }
@@ -212,8 +231,8 @@ namespace BatalhaNaval
             //Pontos de cada jogador
             int pontos1 = 0, pontos2 = 0;
 
-
             int colocarBarcos1 = 0, colocarBarcos2 = 0;
+
             do
             {
                 Console.Clear();
@@ -349,27 +368,54 @@ namespace BatalhaNaval
                     bool inputValid = false;
                     while (!inputValid)
                     {
-                        MostrarTabuleiro1(tabuleiroJogador1, celulas);
 
-                        Console.WriteLine("|Jogador 1 introduza porta aviões|");
-                        Console.WriteLine($"Linha do porta aviões: (1 e {celulas})");
-                        Linha = int.Parse(Console.ReadLine()) - 1;
-                        Console.WriteLine($"Coluna do porta aviões: (A e {(char)('A' + celulas - 1)})");
-                        letter = Console.ReadLine().ToUpper();
-                        if (string.IsNullOrEmpty(letter))
+                        MostrarTabuleiro1(tabuleiroJogador1, celulas);
+                        try
+                        {
+                            while (true)
+                            {
+                                Console.WriteLine($"|Jogador 1 introduza o porta aviões numero {i + 1} |");
+                                Console.WriteLine($"Linha do porta aviões: (1 e {celulas})");
+
+                                Linha = int.Parse(Console.ReadLine()) - 1;
+
+                                Console.WriteLine($"Coluna do porta aviões: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+
+                                Col = (int)letter[0] - 65;
+                                if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        catch (FormatException)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
                             Console.ResetColor();
                             continue;
                         }
-                        Col = (int)letter[0] - 65;
+
 
                         if (Linha + 3 >= celulas)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
                             Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
-                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente...");
                             Console.ReadKey();
                             Console.ResetColor();
                             Console.Clear();
@@ -387,20 +433,50 @@ namespace BatalhaNaval
                                 Console.Clear();
                                 //Linha
                                 MostrarTabuleiro1(tabuleiroJogador1, celulas);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Posição já ocupada\n");
+                                Console.ResetColor();
 
-                                Console.WriteLine("|Jogador 1 introduza porta aviões|");
-                                Console.WriteLine($"Linha do porta aviões: (1 e {celulas})");
-                                Linha = int.Parse(Console.ReadLine()) - 1;
-                                Console.WriteLine($"Coluna do porta aviões: (A e {(char)('A' + celulas - 1)})");
-                                letter = Console.ReadLine().ToUpper();
-                                if (string.IsNullOrEmpty(letter))
+                                try
                                 {
+                                    while (true)
+                                    {
+                                        Console.WriteLine($"|Jogador 1 introduza o porta aviões numero {i + 1}|");
+                                        Console.WriteLine($"Linha do porta aviões: (1 e {celulas})");
+                                        Linha = int.Parse(Console.ReadLine()) - 1;
+
+                                        Console.WriteLine($"Coluna do porta aviões: (A e {(char)('A' + celulas - 1)})");
+                                        letter = Console.ReadLine().ToUpper();
+                                        if (string.IsNullOrEmpty(letter))
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.Yellow;
+                                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                            Console.ResetColor();
+                                            continue;
+                                        }
+                                        Col = (int)letter[0] - 65;
+
+                                        if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.Yellow;
+                                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                            Console.ResetColor();
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                                catch (FormatException)
+                                {
+                                    Console.Clear();
                                     Console.ForegroundColor = ConsoleColor.Yellow;
-                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
                                     Console.ResetColor();
                                     continue;
                                 }
-                                Col = (int)letter[0] - 65;
+
 
                             }
                         }
@@ -414,8 +490,6 @@ namespace BatalhaNaval
                     }
                 }
 
-
-
                 for (int i = 0; i < fragatas; i++)
                 {
                     Console.Clear();
@@ -423,26 +497,52 @@ namespace BatalhaNaval
                     while (!inputValid)
                     {
                         MostrarTabuleiro1(tabuleiroJogador1, celulas);
+              
+                        try
+                        {
+                            while (true)
+                            {
+                                Console.WriteLine($"|Jogador 1 introduza a fragata numero {i + 1}|");
+                                Console.WriteLine($"Linha do fragata: (1 e {celulas})");
+                                Linha = int.Parse(Console.ReadLine()) - 1;
 
-                        Console.WriteLine("|Jogador 1 introduza fragatas|");
-                        Console.WriteLine($"Linha do fragatas: (1 e {celulas})");
-                        Linha = int.Parse(Console.ReadLine()) - 1;
-                        Console.WriteLine($"Coluna do fragatas: (A e {(char)('A' + celulas - 1)})");
-                        letter = Console.ReadLine().ToUpper();
-                        if (string.IsNullOrEmpty(letter))
+                                Console.WriteLine($"Coluna do fragata: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+                                Col = (int)letter[0] - 65;
+
+                                if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        catch (FormatException)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
                             Console.ResetColor();
                             continue;
                         }
-                        Col = (int)letter[0] - 65;
+
 
                         if (Linha + 2 >= celulas)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
                             Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
-                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente...");
                             Console.ReadKey();
                             Console.ResetColor();
                             Console.Clear();
@@ -460,10 +560,40 @@ namespace BatalhaNaval
                                 Console.Clear();
                                 //Linha
                                 MostrarTabuleiro1(tabuleiroJogador1, celulas);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Posição já ocupada\n");
+                                Console.ResetColor();
+                                
+                                try
+                                {
+                                    while (true)
+                                    {
+                                        Console.WriteLine($"|Jogador 1 introduza a fragata numero {i + 1}|");
+                                        Console.WriteLine($"Linha do fragatas: (1 e {celulas})");
 
-                                Console.WriteLine("|Jogador 1 introduza fragatas|");
-                                Console.WriteLine($"Linha do fragatas: (1 e {celulas})");
-                                Linha = int.Parse(Console.ReadLine()) - 1;
+                                        Linha = int.Parse(Console.ReadLine()) - 1;
+
+                                        if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.Yellow;
+                                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                            Console.ResetColor();
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+
+                                    }
+                                }
+                                catch (FormatException)
+                                {
+                                    Console.Clear();
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
+                                    Console.ResetColor();
+                                    continue;
+                                }
                                 Console.WriteLine($"Coluna do fragatas: (A e {(char)('A' + celulas - 1)})");
                                 letter = Console.ReadLine().ToUpper();
                                 if (string.IsNullOrEmpty(letter))
@@ -493,26 +623,51 @@ namespace BatalhaNaval
                     while (!inputValid)
                     {
                         MostrarTabuleiro1(tabuleiroJogador1, celulas);
+                        try
+                        {
+                            while (true)
+                            {
+                                Console.WriteLine($"|Jogador 1 introduza a corveta numero {i + 1}|");
+                                Console.WriteLine($"Linha da corveta: (1 e {celulas})");
+                                Linha = int.Parse(Console.ReadLine()) - 1;
 
-                        Console.WriteLine("|Jogador 1 introduza corvetas|");
-                        Console.WriteLine($"Linha do corvetas: (1 e {celulas})");
-                        Linha = int.Parse(Console.ReadLine()) - 1;
-                        Console.WriteLine($"Coluna do corvetas: (A e {(char)('A' + celulas - 1)})");
-                        letter = Console.ReadLine().ToUpper();
-                        if (string.IsNullOrEmpty(letter))
+                                Console.WriteLine($"Coluna do corvetas: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+                                Col = (int)letter[0] - 65;
+
+                                if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        catch (FormatException)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
                             Console.ResetColor();
                             continue;
                         }
-                        Col = (int)letter[0] - 65;
+
 
                         if (Linha + 1 >= celulas)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
                             Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
-                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente...");
                             Console.ReadKey();
                             Console.ResetColor();
                             Console.Clear();
@@ -530,20 +685,52 @@ namespace BatalhaNaval
                                 Console.Clear();
                                 //Linha
                                 MostrarTabuleiro1(tabuleiroJogador1, celulas);
-
-                                Console.WriteLine("|Jogador 1 introduza corvetas|");
-                                Console.WriteLine($"Linha do corvetas: (1 e {celulas})");
-                                Linha = int.Parse(Console.ReadLine()) - 1;
-                                Console.WriteLine($"Coluna do corvetas: (A e {(char)('A' + celulas - 1)})");
-                                letter = Console.ReadLine().ToUpper();
-                                if (string.IsNullOrEmpty(letter))
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Posição já ocupada\n");
+                                Console.ResetColor();
+                               
+                                try
                                 {
+                                    while (true)
+                                    {
+                                        Console.WriteLine($"|Jogador 1 introduza a corveta numero {i + 1}|");
+                                        Console.WriteLine($"Linha da corveta: (1 e {celulas})");
+
+                                        Linha = int.Parse(Console.ReadLine()) - 1;
+
+                                        Console.WriteLine($"Coluna do corveta: (A e {(char)('A' + celulas - 1)})");
+                                        letter = Console.ReadLine().ToUpper();
+                                        if (string.IsNullOrEmpty(letter))
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.Yellow;
+                                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                            Console.ResetColor();
+                                            continue;
+                                        }
+                                        Col = (int)letter[0] - 65;
+
+                                        if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.Yellow;
+                                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                            Console.ResetColor();
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+
+                                    }
+                                }
+                                catch (FormatException)
+                                {
+                                    Console.Clear();
                                     Console.ForegroundColor = ConsoleColor.Yellow;
-                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
                                     Console.ResetColor();
                                     continue;
                                 }
-                                Col = (int)letter[0] - 65;
+
 
                             }
                         }
@@ -562,26 +749,52 @@ namespace BatalhaNaval
                     while (!inputValid)
                     {
                         MostrarTabuleiro1(tabuleiroJogador1, celulas);
+                       
+                        try
+                        {
+                            while (true)
+                            {
+                                Console.WriteLine($"|Jogador 1 introduza o submarino numero {i + 1}|");
+                                Console.WriteLine($"Linha do submarino: (1 e {celulas})");
+                                Linha = int.Parse(Console.ReadLine()) - 1;
 
-                        Console.WriteLine("|Jogador 1 introduza submarinos|");
-                        Console.WriteLine($"Linha do submarinos: (1 e {celulas})");
-                        Linha = int.Parse(Console.ReadLine()) - 1;
-                        Console.WriteLine($"Coluna do submarinos: (A e {(char)('A' + celulas - 1)})");
-                        letter = Console.ReadLine().ToUpper();
-                        if (string.IsNullOrEmpty(letter))
+                                Console.WriteLine($"Coluna do submarino: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+                                Col = (int)letter[0] - 65;
+
+                                if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        catch (FormatException)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
                             Console.ResetColor();
                             continue;
                         }
-                        Col = (int)letter[0] - 65;
+
 
                         if (Linha >= celulas)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
                             Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
-                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente...");
                             Console.ReadKey();
                             Console.ResetColor();
                             Console.Clear();
@@ -599,20 +812,49 @@ namespace BatalhaNaval
                                 Console.Clear();
                                 //Linha
                                 MostrarTabuleiro1(tabuleiroJogador1, celulas);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Posição já ocupada\n");
+                                Console.ResetColor();
 
-                                Console.WriteLine("|Jogador 1 introduza submarinos|");
-                                Console.WriteLine($"Linha do submarinos: (1 e {celulas})");
-                                Linha = int.Parse(Console.ReadLine()) - 1;
-                                Console.WriteLine($"Coluna do submarinos: (A e {(char)('A' + celulas - 1)})");
-                                letter = Console.ReadLine().ToUpper();
-                                if (string.IsNullOrEmpty(letter))
+                                try
                                 {
+                                    while (true)
+                                    {
+                                        Console.WriteLine($"|Jogador 1 introduza o submarino numero {i + 1}|");
+                                        Console.WriteLine($"Linha do submarino: (1 e {celulas})");
+                                        Linha = int.Parse(Console.ReadLine()) - 1;
+                                        Console.WriteLine($"Coluna do submarino: (A e {(char)('A' + celulas - 1)})");
+                                        letter = Console.ReadLine().ToUpper();
+                                        if (string.IsNullOrEmpty(letter))
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.Yellow;
+                                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                            Console.ResetColor();
+                                            continue;
+                                        }
+                                        Col = (int)letter[0] - 65;
+
+                                        if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.Yellow;
+                                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                            Console.ResetColor();
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                                catch (FormatException)
+                                {
+                                    Console.Clear();
                                     Console.ForegroundColor = ConsoleColor.Yellow;
-                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
                                     Console.ResetColor();
                                     continue;
                                 }
-                                Col = (int)letter[0] - 65;
+                                
 
                             }
                         }
@@ -622,7 +864,6 @@ namespace BatalhaNaval
 
                     }
                 }
-
 
             }
 
@@ -738,25 +979,50 @@ namespace BatalhaNaval
                     {
                         MostrarTabuleiro2(tabuleiroJogador2, celulas);
 
-                        Console.WriteLine("|Jogador 2 introduza porta aviões|");
-                        Console.WriteLine($"Linha do porta aviões: (1 e {celulas})");
-                        Linha = int.Parse(Console.ReadLine()) - 1;
-                        Console.WriteLine($"Coluna do porta aviões: (A e {(char)('A' + celulas - 1)})");
-                        letter = Console.ReadLine().ToUpper();
-                        if (string.IsNullOrEmpty(letter))
+                        try
+                        {
+                            while (true)
+                            {
+                                Console.WriteLine($"|Jogador 2 introduza o porta aviões numero {i + 1}|");
+                                Console.WriteLine($"Linha do porta aviões: (1 e {celulas})");
+                                Linha = int.Parse(Console.ReadLine()) - 1;
+
+                                Console.WriteLine($"Coluna do porta aviões: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+                                Col = (int)letter[0] - 65;
+
+                                if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        catch (FormatException)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
                             Console.ResetColor();
                             continue;
                         }
-                        Col = (int)letter[0] - 65;
-
+                        
                         if (Linha + 3 >= celulas)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
                             Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
-                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente...");
                             Console.ReadKey();
                             Console.ResetColor();
                             Console.Clear();
@@ -774,20 +1040,47 @@ namespace BatalhaNaval
                                 Console.Clear();
                                 //Linha
                                 MostrarTabuleiro2(tabuleiroJogador2, celulas);
-
-                                Console.WriteLine("|Jogador 2 introduza porta aviões|");
-                                Console.WriteLine($"Linha do porta aviões: (1 e {celulas})");
-                                Linha = int.Parse(Console.ReadLine()) - 1;
-                                Console.WriteLine($"Coluna do porta aviões: (A e {(char)('A' + celulas - 1)})");
-                                letter = Console.ReadLine().ToUpper();
-                                if (string.IsNullOrEmpty(letter))
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Posição já ocupada\n");
+                                Console.ResetColor();
+                                
+                                try
                                 {
+                                    while (true)
+                                    {
+                                        Console.WriteLine($"|Jogador 2 introduza o porta aviões numero {i + 1}|");
+                                        Console.WriteLine($"Linha do porta aviões: (1 e {celulas})");
+                                        Linha = int.Parse(Console.ReadLine()) - 1;
+                                        Console.WriteLine($"Coluna do porta aviões: (A e {(char)('A' + celulas - 1)})");
+                                        letter = Console.ReadLine().ToUpper();
+                                        if (string.IsNullOrEmpty(letter))
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.Yellow;
+                                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                            Console.ResetColor();
+                                            continue;
+                                        }
+                                        Col = (int)letter[0] - 65;
+                                        if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.Yellow;
+                                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                            Console.ResetColor();
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                                catch (FormatException)
+                                {
+                                    Console.Clear();
                                     Console.ForegroundColor = ConsoleColor.Yellow;
-                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
                                     Console.ResetColor();
                                     continue;
                                 }
-                                Col = (int)letter[0] - 65;
 
                             }
                         }
@@ -801,8 +1094,6 @@ namespace BatalhaNaval
                     }
                 }
 
-
-
                 for (int i = 0; i < fragatas; i++)
                 {
                     Console.Clear();
@@ -811,25 +1102,53 @@ namespace BatalhaNaval
                     {
                         MostrarTabuleiro2(tabuleiroJogador2, celulas);
 
-                        Console.WriteLine("|Jogador 2 introduza fragatas|");
-                        Console.WriteLine($"Linha do fragatas: (1 e {celulas})");
-                        Linha = int.Parse(Console.ReadLine()) - 1;
-                        Console.WriteLine($"Coluna do fragatas: (A e {(char)('A' + celulas - 1)})");
-                        letter = Console.ReadLine().ToUpper();
-                        if (string.IsNullOrEmpty(letter))
+                       
+                        try
+                        {
+                            while (true)
+                            {
+                                Console.WriteLine($"|Jogador 2 introduza a fragata numero {i + 1}|");
+                                Console.WriteLine($"Linha da fragata: (1 e {celulas})");
+                                Linha = int.Parse(Console.ReadLine()) - 1;
+
+                                Console.WriteLine($"Coluna da fragata: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+                                Col = (int)letter[0] - 65;
+
+                                if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+
+                        }
+                        catch (FormatException)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
                             Console.ResetColor();
                             continue;
                         }
-                        Col = (int)letter[0] - 65;
+
 
                         if (Linha + 2 >= celulas)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
                             Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
-                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente...");
                             Console.ReadKey();
                             Console.ResetColor();
                             Console.Clear();
@@ -847,20 +1166,50 @@ namespace BatalhaNaval
                                 Console.Clear();
                                 //Linha
                                 MostrarTabuleiro2(tabuleiroJogador2, celulas);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Posição já ocupada\n");
+                                Console.ResetColor();
 
-                                Console.WriteLine("|Jogador 1 introduza fragatas|");
-                                Console.WriteLine($"Linha do fragatas: (1 e {celulas})");
-                                Linha = int.Parse(Console.ReadLine()) - 1;
-                                Console.WriteLine($"Coluna do fragatas: (A e {(char)('A' + celulas - 1)})");
-                                letter = Console.ReadLine().ToUpper();
-                                if (string.IsNullOrEmpty(letter))
+                                try
                                 {
+
+                                    while (true)
+                                    {
+                                        Console.WriteLine($"|Jogador 2 introduza a fragata numero {i + 1}|");
+                                        Console.WriteLine($"Linha da fragata: (1 e {celulas})");
+                                        Linha = int.Parse(Console.ReadLine()) - 1;
+                                        Console.WriteLine($"Coluna da fragata: (A e {(char)('A' + celulas - 1)})");
+                                        letter = Console.ReadLine().ToUpper();
+                                        if (string.IsNullOrEmpty(letter))
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.Yellow;
+                                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                            Console.ResetColor();
+                                            continue;
+                                        }
+                                        Col = (int)letter[0] - 65;
+
+                                        if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.Yellow;
+                                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                            Console.ResetColor();
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                                catch (FormatException)
+                                {
+                                    Console.Clear();
                                     Console.ForegroundColor = ConsoleColor.Yellow;
-                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
                                     Console.ResetColor();
                                     continue;
                                 }
-                                Col = (int)letter[0] - 65;
+
 
                             }
                         }
@@ -880,26 +1229,52 @@ namespace BatalhaNaval
                     while (!inputValid)
                     {
                         MostrarTabuleiro2(tabuleiroJogador2, celulas);
+                      
+                        try
+                        {
+                            while (true)
+                            {
+                                Console.WriteLine($"|Jogador 2 introduza a corveta numero {i + 1}|");
+                                Console.WriteLine($"Linha da corveta: (1 e {celulas})");
+                                Linha = int.Parse(Console.ReadLine()) - 1;
 
-                        Console.WriteLine("|Jogador 2 introduza corvetas|");
-                        Console.WriteLine($"Linha do corvetas: (1 e {celulas})");
-                        Linha = int.Parse(Console.ReadLine()) - 1;
-                        Console.WriteLine($"Coluna do corvetas: (A e {(char)('A' + celulas - 1)})");
-                        letter = Console.ReadLine().ToUpper();
-                        if (string.IsNullOrEmpty(letter))
+                                Console.WriteLine($"Coluna do corvetas: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+                                Col = (int)letter[0] - 65;
+
+                                if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        catch (FormatException)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
                             Console.ResetColor();
                             continue;
                         }
-                        Col = (int)letter[0] - 65;
+                       
 
                         if (Linha + 1 >= celulas)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
                             Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
-                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente...");
                             Console.ReadKey();
                             Console.ResetColor();
                             Console.Clear();
@@ -917,20 +1292,48 @@ namespace BatalhaNaval
                                 Console.Clear();
                                 //Linha
                                 MostrarTabuleiro2(tabuleiroJogador2, celulas);
-
-                                Console.WriteLine("|Jogador 2 introduza corvetas|");
-                                Console.WriteLine($"Linha do corvetas: (1 e {celulas})");
-                                Linha = int.Parse(Console.ReadLine()) - 1;
-                                Console.WriteLine($"Coluna do corvetas: (A e {(char)('A' + celulas - 1)})");
-                                letter = Console.ReadLine().ToUpper();
-                                if (string.IsNullOrEmpty(letter))
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Posição já ocupada\n");
+                                Console.ResetColor();
+                                
+                                try
                                 {
+                                    Console.WriteLine($"|Jogador 2 introduza a corveta numero {i + 1}|");
+                                    Console.WriteLine($"Linha da corveta: (1 e {celulas})");
+                                    Linha = int.Parse(Console.ReadLine()) - 1;
+
+                                    Console.WriteLine($"Coluna da corveta: (A e {(char)('A' + celulas - 1)})");
+                                    letter = Console.ReadLine().ToUpper();
+                                    if (string.IsNullOrEmpty(letter))
+                                    {
+                                        Console.ForegroundColor = ConsoleColor.Yellow;
+                                        Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                        Console.ResetColor();
+                                        continue;
+                                    }
+                                    Col = (int)letter[0] - 65;
+
+                                    if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                    {
+                                        Console.ForegroundColor = ConsoleColor.Yellow;
+                                        Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                        Console.ResetColor();
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+
+                                }
+                                catch (FormatException)
+                                {
+                                    Console.Clear();
                                     Console.ForegroundColor = ConsoleColor.Yellow;
-                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
                                     Console.ResetColor();
                                     continue;
                                 }
-                                Col = (int)letter[0] - 65;
+
 
                             }
                         }
@@ -950,25 +1353,52 @@ namespace BatalhaNaval
                     {
                         MostrarTabuleiro2(tabuleiroJogador2, celulas);
 
-                        Console.WriteLine("|Jogador 1 introduza submarinos|");
-                        Console.WriteLine($"Linha do submarinos: (1 e {celulas})");
-                        Linha = int.Parse(Console.ReadLine()) - 1;
-                        Console.WriteLine($"Coluna do submarinos: (A e {(char)('A' + celulas - 1)})");
-                        letter = Console.ReadLine().ToUpper();
-                        if (string.IsNullOrEmpty(letter))
+
+                        try
+                        {
+                            while (true)
+                            {
+                                Console.WriteLine($"|Jogador 1 introduza o submarino numero {i + 1}|");
+                                Console.WriteLine($"Linha do submarino: (1 e {celulas})");
+                                Linha = int.Parse(Console.ReadLine()) - 1;
+
+                                Console.WriteLine($"Coluna do submarino: (A e {(char)('A' + celulas - 1)})");
+                                letter = Console.ReadLine().ToUpper();
+                                if (string.IsNullOrEmpty(letter))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                    continue;
+                                }
+                                Col = (int)letter[0] - 65;
+
+                                if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.ResetColor();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        catch (FormatException)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                            Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
                             Console.ResetColor();
                             continue;
                         }
-                        Col = (int)letter[0] - 65;
+
 
                         if (Linha >= celulas)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
                             Console.WriteLine("A posição inserida não é válida. Insira uma posição válida.");
-                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente");
+                            Console.WriteLine("Carrega em qualquer tecla para introduzir as coordenadas novamente...");
                             Console.ReadKey();
                             Console.ResetColor();
                             Console.Clear();
@@ -986,20 +1416,50 @@ namespace BatalhaNaval
                                 Console.Clear();
                                 //Linha
                                 MostrarTabuleiro2(tabuleiroJogador2, celulas);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Posição já ocupada\n");
+                                Console.ResetColor();
 
-                                Console.WriteLine("|Jogador 2 introduza submarinos|");
-                                Console.WriteLine($"Linha do submarinos: (1 e {celulas})");
-                                Linha = int.Parse(Console.ReadLine()) - 1;
-                                Console.WriteLine($"Coluna do submarinos: (A e {(char)('A' + celulas - 1)})");
-                                letter = Console.ReadLine().ToUpper();
-                                if (string.IsNullOrEmpty(letter))
+                                try
                                 {
+                                    while (true)
+                                    {
+                                        Console.WriteLine($"|Jogador 1 introduza o submarino numero {i + 1}|");
+                                        Console.WriteLine($"Linha do submarino: (1 e {celulas})");
+                                        Linha = int.Parse(Console.ReadLine()) - 1;
+                                        Console.WriteLine($"Coluna do submarino: (A e {(char)('A' + celulas - 1)})");
+                                        letter = Console.ReadLine().ToUpper();
+                                        if (string.IsNullOrEmpty(letter))
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.Yellow;
+                                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                            Console.ResetColor();
+                                            continue;
+                                        }
+                                        Col = (int)letter[0] - 65;
+
+                                        if (Linha < 0 || Linha > celulas - 1 || Col < 0 || Col > celulas - 1)
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.Yellow;
+                                            Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                            Console.ResetColor();
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+
+                                    }
+                                }
+                                catch (FormatException)
+                                {
+                                    Console.Clear();
                                     Console.ForegroundColor = ConsoleColor.Yellow;
-                                    Console.WriteLine("Você não inseriu nenhum valor. Insira uma letra entre A e " + (char)('A' + celulas - 1));
+                                    Console.WriteLine("Você não inseriu um valor numérico válido. Insira um número entre 1 e " + celulas);
                                     Console.ResetColor();
                                     continue;
                                 }
-                                Col = (int)letter[0] - 65;
+                                
 
                             }
                         }
