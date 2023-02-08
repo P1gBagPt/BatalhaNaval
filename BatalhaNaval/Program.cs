@@ -259,7 +259,7 @@ namespace BatalhaNaval
 
             if (colocarBarcos1 == 2)
             {
-                //-----Posicionar BARCOS TABULEIRO 1-----
+                //-----Posicionar BARCOS TABULEIRO 1 RANDOM -----
 
                 for (int i = 0; i < portaAvioes; i++)
                 {
@@ -358,7 +358,7 @@ namespace BatalhaNaval
                 }
 
 
-                //-----Posicionar BARCOS TABULEIRO 1-----
+                //-----Posicionar BARCOS TABULEIRO 1 RANDOM -----
             }
             else if (colocarBarcos1 == 1)
             {
@@ -557,7 +557,7 @@ namespace BatalhaNaval
                         {
                             emptySpot = true;
 
-                            if (tabuleiroJogador1[Linha, Col] != '\0' || tabuleiroJogador1[Linha + 1, Col] != '\0' || tabuleiroJogador1[Linha + 2, Col] != '\0')
+                            if (tabuleiroJogador1[Linha, Col] != '\0' || tabuleiroJogador1[Linha, Col + 1] != '\0' || tabuleiroJogador1[Linha, Col + 2] != '\0')
                             {
                                 emptySpot = false;
                                 Console.Clear();
@@ -612,8 +612,8 @@ namespace BatalhaNaval
                         }
                         //Adiciona ao tabuleiro do jogador 1
                         tabuleiroJogador1[Linha, Col] = 'F';
-                        tabuleiroJogador1[Linha + 1, Col] = 'F';
-                        tabuleiroJogador1[Linha + 2, Col] = 'F';
+                        tabuleiroJogador1[Linha, Col + 1] = 'F';
+                        tabuleiroJogador1[Linha, Col + 2] = 'F';
                         inputValid = true;
 
                     }
@@ -869,8 +869,6 @@ namespace BatalhaNaval
                 }
 
             }
-
-
 
             if (modoJogar == 2)
             {
@@ -1169,7 +1167,7 @@ namespace BatalhaNaval
                         {
                             emptySpot = true;
 
-                            if (tabuleiroJogador2[Linha, Col] != '\0' || tabuleiroJogador2[Linha + 1, Col] != '\0' || tabuleiroJogador2[Linha + 2, Col] != '\0')
+                            if (tabuleiroJogador2[Linha, Col] != '\0' || tabuleiroJogador2[Linha, Col + 1] != '\0' || tabuleiroJogador2[Linha, Col + 2] != '\0')
                             {
                                 emptySpot = false;
                                 Console.Clear();
@@ -1224,8 +1222,8 @@ namespace BatalhaNaval
                         }
                         //Adiciona ao tabuleiro do jogador 1
                         tabuleiroJogador2[Linha, Col] = 'F';
-                        tabuleiroJogador2[Linha + 1, Col] = 'F';
-                        tabuleiroJogador2[Linha + 2, Col] = 'F';
+                        tabuleiroJogador2[Linha, Col + 1] = 'F';
+                        tabuleiroJogador2[Linha, Col + 2] = 'F';
                         inputValid = true;
 
                     }
@@ -2190,7 +2188,6 @@ namespace BatalhaNaval
                 Console.WriteLine();
             }
         }
-
 
         private static void MostrarTabuleiro2(char[,] tabuleiro2, int celulas)
         {
